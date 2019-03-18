@@ -1,0 +1,88 @@
+<html>
+
+<head>
+    <title>Mapbox Analytics API Data</title>
+    <meta http-equiv="Cache-Control" content="no-store" />
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    <script src="https://connectors.tableau.com/libs/tableauwdc-2.3.latest.js" type="text/javascript"></script>
+    <script src="mapbox-analytics.js" type="text/javascript"></script>
+    <style>
+        .indent-check { margin-left:0; display:block; }
+    </style>
+</head>
+
+<body>
+    <div class="container container-fluid">
+        <div class="row">
+           <div class="input-group mb-3">
+               <div class="form-group">
+                <label for="txtUsername">Mapbox Username</label>
+                <input class="form-control" id="txtUsername" value="tableau-enterprise" aria-describedby="username" placeholder="username">
+                <small id="emailHelp" class="form-text text-muted">Username for Mapbox Enterprise Accounts only.</small>
+              </div>
+          </div>
+        </div>
+        <div class="row">
+            <div class="input-group mb-3">
+              <div class="form-group">
+                <label for="txtAPIToken">API Token</label>
+                <input class="form-control" id="txtAPIToken" aria-describedby="Token" value="" placeholder="API Token">
+                <small id="emailHelp" class="form-text text-muted">Token should have analytics:read, tilesets:list and styles:list scopes.</small>
+              </div>
+                
+            </div>  
+<!--            <button type="button" id="APIFetchButton" class="btn btn-success" style="margin: 10px;display:none;">Get List of Styles</button>-->
+        </div>
+<!--
+        <div>
+            <span class="label label-primary">Choose Tables to Import</span>
+            <div class="indent-check">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="chkAccounts">
+              <label class="form-check-label" for="chkAccounts">
+                Accounts
+              </label>
+            </div>
+            </div>
+            <div class="indent-check">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="chkTokens">
+              <label class="form-check-label" for="chkTokens">
+                Tokens
+              </label>
+            </div>
+            </div>
+            <div class="indent-check">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="chkStyles">
+              <label class="form-check-label" for="chkStyles">
+                Styles
+              </label>
+            </div>
+            </div>
+            <div class="indent-check">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="chkTilesets">
+              <label class="form-check-label" for="chkTilesets">
+                Tilesets
+              </label>
+            </div>
+            </div>
+        </div>
+-->
+        <div class="row vertical-center-row">
+            <div id="liststyles"></div>
+        </div>
+        <div class="row">
+            <div class="text-center">
+                <button type="button" id="submitButton" class="btn btn-success" style="margin: 10px;">Get Usage Data</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

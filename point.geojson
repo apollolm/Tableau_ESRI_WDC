@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","crs":{"type":"name","properties":{"name":"EPSG:4326"}},"features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.185955985277275,44.384775006020675]},"id":123, "properties":{"OWN_NAME":"SHELBURNE LIMESTONE CORP"}}]}

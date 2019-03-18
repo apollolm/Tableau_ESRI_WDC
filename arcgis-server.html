@@ -1,0 +1,66 @@
+<html>
+
+<head>
+    <title>ArcGIS Server Data</title>
+    <meta http-equiv="Cache-Control" content="no-store" />
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    <script src="https://connectors.tableau.com/libs/tableauwdc-2.3.latest.js" type="text/javascript"></script>
+    <script src="arcgis-server.js" type="text/javascript"></script>
+    <script src="arcgistogeojson.js" type="text/javascript"></script>
+    
+    <style>
+        .indent-check { margin-left:0; display:bslock; }
+    </style>
+</head>
+
+<body>
+    <div class="container container-fluid">
+        <div class="row">
+           <div class="input-group mb-3">
+               <div class="form-group">
+                <label for="txtServerURL">ArcGIS Server Rest URL</label>
+                <input class="form-control" id="txtServerURL" value="https://gismaps.kingcounty.gov/arcgis/rest/" aria-describedby="URL" placeholder="https://map.ccrpcvt.org/arcgis/rest/">
+                <small id="emailHelp" class="form-text text-muted">URL to an ArcGIS Server REST Service. Should end in 'arcgis/rest/'</small>
+              </div>
+          </div>
+        </div>
+            
+<!--
+        <div class="row">
+           <div class="input-group mb-3">
+               <div class="form-group">
+                <label for="txtUsername">Username</label>
+                <input class="form-control" id="txtUsername" value="tableau-enterprise" aria-describedby="username" placeholder="username">
+                <small id="emailHelp" class="form-text text-muted">(Optional) Username for ArcGIS Server only.</small>
+              </div>
+          </div>
+        </div>
+        <div class="row">
+            <div class="input-group mb-3">
+              <div class="form-group">
+                <label for="txtAPIToken">API Token</label>
+                <input type="password" class="form-control" id="txtPassword" aria-describedby="Token" value="sk.eyJ1IjoidGFibGVhdS1lbnRlcnByaXNlIiwiYSI6ImNqc294MTU3NTByZTA0OXQ5YTBnZ25sYXAifQ.gQcaSpRT4V06vTOPyaHrfw" placeholder="API Token">
+                <small id="emailHelp" class="form-text text-muted">(Optional) Password for ArcGIS Server.</small>
+              </div>
+                
+            </div>  
+  
+        </div>
+-->
+
+        <div class="row vertical-center-row">
+            <div id="liststyles"></div>
+        </div>
+        <div class="row">
+            <div class="text-center">
+                <button type="button" id="submitButton" class="btn btn-success" style="margin: 10px;">Connect</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
