@@ -15,10 +15,9 @@
     layers: [],
     schema_properties: [],
     protocol: 'https', //or http
-    https_proxy_url: "http://rwhitley-mac:8889/", //This one forwards requests to HTTPS endpoints only
-    http_proxy_url: "http://rwhitley-mac:8890/", //This one forwards requests to HTTP only
+    https_proxy_url: "http://localhost:8889/", //This one forwards requests to HTTPS endpoints only
+    http_proxy_url: "http://localhost:8890/", //This one forwards requests to HTTP only
     json_format_querystirng: 'f=json',
-    styles_url_pattern: '/styles/v1/{username}?access_token={api_token}',
     getRootListURL: function(folder) {
       if(folder) return this.root_list_url = this.proxy_url + this.base_url + "services/" + folder
       return  this.root_list_url = this.proxy_url + this.base_url;
@@ -187,13 +186,11 @@
         
       //Iterate over the JSON object
       //Should see currentVersion, folders, services
-      //Folders will need to be explored and their services pulled out recursively probably.
       //Focus on root level services for now. Find the query endpoints for layers.
-      
         if (server && server.services){
           for (var i = 0, len = server.services.length; i < len; i++) {
              if(server.services[i].type == 'MapServer'){
-                 //We want to expore it more.
+                 //Bingo!  This is an endpoint that has queryable layers (probably). We want to expore it more.
                  _api_params.services.push(server.services[i]);
              }
           }
@@ -226,31 +223,29 @@
           return;
         }
 
-    //Then try to list styles and populate the dropdown
+    //Get the list of services for the given folder
     $.getJSON(_api_params.formatForJSON(url), function (resp, txtstatus, jqxhr) {
 
         var server = resp;
         
       //Iterate over the JSON object
-      //Should see currentVersion, folders, services
-      //Folders will need to be explored and their services pulled out recursively probably.
-      //Focus on root level services for now. Find the query endpoints for layers.
-      
+      //Should see currentVersion, folders, services    
         if (server && server.services){
           for (var i = 0, len = server.services.length; i < len; i++) {
              if(server.services[i].type == 'MapServer'){
-                 //We want to expore it more.
+                 //Bingo!  This is an endpoint that has queryable layers (probably). We want to expore it more.
                  _api_params.services.push(server.services[i]);
              }
           }
         }
         
-     
+        //If there are more folders, go back in and explore them.
         if (_api_params.folders.length > 0) {
            //Mission Accomplished
            discoverFolderizedServices(callback);
         }
         else {
+           //Otherwise, get the heck out of here!
            callback();
            return;
         }
@@ -272,7 +267,7 @@
           return;
         }
 
-        //Then try to get the goods
+        //Then try to get the list of layers from this service
         $.getJSON(_api_params.formatForJSON(url), function (resp, txtstatus, jqxhr) {
 
             var serviceResponse = resp;
@@ -300,7 +295,7 @@
                 }
             }
             
-            //See if there are any WMTS endpoints here as well
+            //Experimental - See if there are any WMTS endpoints here as well
             if(serviceResponse && serviceResponse.singleFusedMapCache && serviceResponse.singleFusedMapCache == true){
                 //If there's a singleFusedMapCache, then there should be a WMTS endpoint (I think).
                 //http://gis3.nve.no/arcgis/rest/services/wmts/Bratthet/MapServer/
@@ -313,6 +308,7 @@
                 } 
             }
 
+            //If there are more services with layers, keep digging.
             if (_api_params.services.length > 0) {
                 //Mission Accomplished
                 discoverQueryableLayerEndpoints(callback);
@@ -345,11 +341,12 @@
       var spatialColumnName = "";
         
       // Iterate over the JSON object and coerce the schema into a format that Tableau expects (flat)
-      //Get out of here if this is a polyline.  Tableau doesn't know anything about that as for now.    
+      //Get out of here if this is a polyline.  Tableau doesn't know anything about that for now.    
       if (summary.geometryType != 'esriGeometryPolyline'){
           if (summary && summary.fields) {
+            //Iterate over the field inforamtion and build up the schema definition
             for (var i = 0, len = summary.fields.length; i < len; i++) {
-                layer = summary.fields[i];
+              layer = summary.fields[i];
               columns.push({
                 id: formatColumnNames(layer.name),
                 alias: layer.alias,
@@ -361,7 +358,7 @@
             }
           }
           
-          //See if we captured a spatial column.  If not, add it to the schema with the default 'Geometry' name.
+          //See if we captured a spatial column.  If not, add it to the schema with the default 'Geometry' name.  Like from GeoJSON.
           if (spatialColumnName == ""){
              columns.push({
                 id: "Geometry",
@@ -374,18 +371,16 @@
 
           //Add the layer/table name to the master table list
           //Only add table if column length is > 0
-          //When used in Tableau, it strips out any extra properties beyond id/alias/columns/description.  So, we'll stash our properties somewhere else
-          //Tableau WDC Doesn't support lines for now, so skip over line types
           //If we're reading directly from a query endpoint, there is no summary.name.  You have to pull it from the URL.  Ugh.
           var table_name = "";
           if(_api_params.url_type == "root"){
-              table_name = summary.name; //.substring(0, 30)//These can be freaking long.  Let's cut it off at 30 and see what happens.
+              table_name = summary.name;
           }
           else if(_api_params.url_type == "query"){
               table_name = findServiceNameFromURL(url);
           }
           else if(_api_params.url_type == "geojson"){
-              
+              //No table name (for display in the data pane in Tableau)
           }
 
           
@@ -396,7 +391,6 @@
                   columns: columns
               })
 
-              //These would get stripped out if we attach to the table schema object.  So we'll stash them somwehere.
               var schema_properties = {
                   query_url: _api_params.queryLayerFormatForJSON(url),
                   spatial_column: spatialColumnName
@@ -406,7 +400,7 @@
           }
       }
 
-
+      //If there are more layers, go get 'em
       if (_api_params.layers.length > 0) {
         getLayerSchemas(callback);
       }
@@ -444,9 +438,9 @@
           
           for (var i = 0, len = fields.length; i < len; i++) {
               columns.push({
-                id: formatColumnNames(fields[i]), //names an aliases have to be alphanumeric only.  No spaces or characters.
+                id: formatColumnNames(fields[i]), //names and aliases have to be alphanumeric only.  No spaces or characters.
                 alias: fields[i],
-                dataType: getTableauColumnTypeFromGeoJSON(typeof(summary.features[0].properties[fields[i]])),
+                dataType: getTableauColumnTypeFromGeoJSON(typeof(summary.features[0].properties[fields[i]]))
               });
             }
           
@@ -455,12 +449,11 @@
           columns.push({
             id: "Geometry",
             alias: "Geometry",
-            dataType: getTableauColumnTypeFromGeoJSON("geometry"),
+            dataType: getTableauColumnTypeFromGeoJSON("geometry")
           }) 
               
           spatialColumnName = "Geometry";
           
-
           //Add the layer/table name to the master table list.  Just call it GeoJSON
           var table_name = "GeoJSON";
      
@@ -471,7 +464,6 @@
                   columns: columns
               })
 
-              //These would get stripped out if we attach to the table schema object.  So we'll stash them somwehere.
               var schema_properties = {
                   query_url: url,
                   spatial_column: spatialColumnName
@@ -481,7 +473,7 @@
           }
       }
 
-
+      //Any more layers?  Go get 'em
       if (_api_params.layers.length > 0) {
         getLayerSchemas(callback);
       }
@@ -551,7 +543,7 @@
         tableObj.appendRows(rows);
       }
 
-      //TODO:  Determine if we need to grab more features with a followup call.
+      //TODO:  Determine if we need to grab more features with a followup call.  ArcGIS Server limits queries to 1000 results by default, though this is configurable by the server administrator.  Different versions of ArcGIS Server have paging capability, where you can specify a starting record and the number of records to fetch, but not all.  The trick is to first query the endpoint and get back all of the ObjectIDs (there is no limit on this query).  Then you sort the IDs and do your own paging.  Ugh.
       //if (_api_params.layers.length > 0) {
       //  getLayerSchemas(callback);
       //}
@@ -566,7 +558,7 @@
   //Return root, query or geojson    
   function parseURLForType(url){
       
-      //If the URl ends in arcgis/rest/, then let's assume it's of type 'root'.
+      //If the URl ends in arcgis/rest/, then let's assume it's of type 'root'.  //TODO:  Many ArcGIS Server instances follow this rule, but some don't (Admins can configure the URL structure to be different than the default.)
       if(url.endsWith("arcgis/rest/") === true){
           return 'root';
       }
@@ -589,17 +581,17 @@
       return s[s.indexOf("services") + 1]; //Get the value at index of the array that holds the token immediately after /services/
   }
 
-  //Clean up layer names that are used as table names for Tableau.
+  //Clean up layer names that are used as table names for Tableau. Only allow alphanumeric table names.
   function formatColumnNames(input){
       return input.replace(/[^a-z0-9]/gi,'');
   }
 
   function getTableauColumnType(esriType){
 
-        //esriFieldTypeBlob, esriFieldTypeRaster not supported, 'cause it doesn't map to a Tableau type.
+      //esriFieldTypeBlob, esriFieldTypeRaster not supported, 'cause it doesn't map to a Tableau type.
       //TODO:  Make this fail gracefully if you can't find the right match, or if somehting changes, or if there is no type passed in.
       var map = {
-           "esriFieldTypeOID": tableau.dataTypeEnum.int,
+          "esriFieldTypeOID": tableau.dataTypeEnum.int,
           "esriFieldTypeInteger": tableau.dataTypeEnum.int,
           "esriFieldTypeSmallInteger": tableau.dataTypeEnum.int,
           "esriFieldTypeDouble": tableau.dataTypeEnum.float,
@@ -625,7 +617,7 @@
     
   function getTableauColumnTypeFromGeoJSON(jsType){
 
-        //using javascript typeof to get bool, number, string
+      //using javascript typeof to get bool, number, string
       //TODO:  Make this fail gracefully if you can't find the right match, or if somehting changes, or if there is no type passed in.
       var map = {
           "number": tableau.dataTypeEnum.float,
