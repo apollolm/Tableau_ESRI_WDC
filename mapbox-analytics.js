@@ -187,6 +187,7 @@
       id: 'MapboxAccounts',
       alias: 'AccountStatistics',
       columns: schemas.accounts,
+      incrementColumnId: "Timestamp"
     },
       {
         id: 'MapboxTokens',
