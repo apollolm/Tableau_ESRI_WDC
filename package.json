@@ -40,7 +40,7 @@
     "eslint-plugin-jsx-a11y": "^1.5.3",
     "eslint-plugin-react": "^5.2.2",
     "express": "^4.14.0",
-    "jsdom": "^9.3.0",
+    "jsdom": "^16.5.0",
     "mocha": "^2.5.3",
     "nyc": "^6.6.1",
     "querystring": "^0.2.0",
